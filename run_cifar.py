@@ -212,7 +212,7 @@ def optimize():
         use_ray=False,
         lexico_objectives=objectives,
         low_cost_partial_config=initial_config,
-        max_failure=400,
+        max_failure=20,
         verbose=0,
         step=6,
     )
