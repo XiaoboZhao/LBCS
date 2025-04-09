@@ -78,7 +78,7 @@ def evaluate_results():
     
     test_loader = get_cifar_test_loader()
 
-    for i in range(20):
+    for i in range(2):
         print("Obtaining checkpoint", i)
         model_train = ResNet18().cuda()
         optimizer = torch.optim.SGD(model_train.parameters(), momentum=0.9, lr=0.1, weight_decay=5e-4)
