@@ -250,7 +250,7 @@ def evaluate_results(analysis):
         best_acc1, best_train_acc1 = 0, 0
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200)
 
-        for epoch in range(0, args.dataset_size):
+        for epoch in range(0, args.train_epoch):
             train_acc1, train_loss = train(model_train, trainloader, optimizer)
             test_acc1, test_loss = test(model_train, test_loader)
             scheduler.step()
