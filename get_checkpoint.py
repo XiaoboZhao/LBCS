@@ -85,7 +85,7 @@ def evaluate_results():
         best_acc1, best_train_acc1 = 0, 0
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200)
 
-        for epoch in range(0, 180):
+        for epoch in range(0, 2):
             train_acc1, train_loss = train(model_train, trainloader, optimizer)
             test_acc1, test_loss = test(model_train, test_loader)
             scheduler.step()
