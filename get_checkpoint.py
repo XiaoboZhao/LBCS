@@ -9,6 +9,7 @@ import argparse
 def parse_args():
     arg = argparse.ArgumentParser()
     arg.add_argument("--data", default="dataset")
+    arg.add_argument("--num_worker", default=2)
     input_args = arg.parse_args()
     return input_args
 
