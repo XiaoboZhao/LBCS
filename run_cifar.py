@@ -30,7 +30,6 @@ def load_checkpoint(epoch):
     for i in range(epoch):
         # with open(f"checkpoint/{i}.pt", "rb") as f:
         checkpoints.append(torch.load(f"checkpoint/{i}.pt"))
-        print(torch.load(f"checkpoint/{i}.pt"))
     return checkpoints
 checkpoints = load_checkpoint(2)
 
