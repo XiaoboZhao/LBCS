@@ -31,7 +31,7 @@ def load_checkpoint(epoch):
         with open(f"checkpoint/{i}.pt", "rb") as f:
             checkpoints.append(torch.load(f)["state_dict"])
     return checkpoints
-checkpoints = load_checkpoint(20)
+checkpoints = load_checkpoint(2)
 
 def parse_args():
     arg = argparse.ArgumentParser()
