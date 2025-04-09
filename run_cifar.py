@@ -126,7 +126,7 @@ def train_to_converge(model, x_coreset, y_coreset, epoch_converge=100):
     top1 = AverageMeter("Acc@1", ":6.2f")
     data, target = x_coreset.cuda(), y_coreset.cuda()
     
-    idx = np.random.randint(20)
+    idx = np.random.randint(2)
     model_copy.load_state_dict(checkpoints[idx])
     
     diverged = False
