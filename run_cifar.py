@@ -149,7 +149,8 @@ epoch = 0
 def evaluate_function(config):
     global epoch
     epoch += 1
-    model = ConvNetCIFARMini(10).cuda()
+    # model = ConvNetCIFARMini(10).cuda()
+    model = ResNet18().cuda()
     
     masks = []
     for i in range(args.dataset_size):
