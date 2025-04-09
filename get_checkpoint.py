@@ -29,12 +29,12 @@ cifar_transform_test = transforms.Compose([
 
 def get_cifar_train_loader(batch_size=512):
     train_dataset = CIFAR10(root=args.data, train=True, transform=cifar_transform_train, download=True)
-    loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, pin_memory=True, num_workers=args["num_worker"])
+    loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, pin_memory=True, num_workers=2)
     return loader, train_dataset
 
 def get_cifar_test_loader(batch_size=500):
     dataset = CIFAR10(root=args.data, train=False, transform=cifar_transform_test, download=True)
-    loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, pin_memory=True, num_workers=args["num_worker"])
+    loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, pin_memory=True, num_workers=2)
 
     return loader
 
