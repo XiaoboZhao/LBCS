@@ -244,7 +244,7 @@ def evaluate_results(analysis):
     test_loader = get_cifar_test_loader()
     acc_mean = []
 
-    for i in range(5):
+    for i in range(2):
         model_train = ResNet18().cuda()
         optimizer = torch.optim.SGD(model_train.parameters(), lr=0.1, weight_decay=5e-4, momentum=0.9)
         best_acc1, best_train_acc1 = 0, 0
