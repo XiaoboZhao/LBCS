@@ -206,8 +206,8 @@ def optimize():
 
     analysis = tune.run(
         evaluate_function,
-        num_samples=500,
-        time_budget_s=99999999,
+        num_samples=10,
+        time_budget_s=3600,
         config=search_space,
         use_ray=False,
         lexico_objectives=objectives,
