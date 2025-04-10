@@ -11,6 +11,8 @@ import math
 import loss_utils
 import argparse
 import os
+import time
+import random
 
 cifar_transform_train = transforms.Compose([
         transforms.RandomCrop(32, padding=4),
@@ -24,7 +26,14 @@ cifar_transform_test = transforms.Compose([
         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
 ])
 
-
+def set_seed(seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 def load_checkpoint(epoch):
     checkpoints = []
     for i in range(epoch):
@@ -44,6 +53,9 @@ def parse_args():
     arg.add_argument("--tolerance", type=str, default="15%")
     arg.add_argument("--data", type=str, default="dataset")
     arg.add_argument("--save_dir", type=str, default="configs")
+    arg.add_argument("--seed", type=int, default=42)
+    arg.add_argument("--num_runs", type=int, default=5)
+
     input_args = arg.parse_args()
     return input_args
 
@@ -243,8 +255,10 @@ def evaluate_results(analysis):
     
     test_loader = get_cifar_test_loader()
     acc_mean = []
+    time_mean = []
 
-    for i in range(2):
+    for i in range(args.num_runs):
+        start_time = time.time()
         model_train = ResNet18().cuda()
         optimizer = torch.optim.SGD(model_train.parameters(), lr=0.1, weight_decay=5e-4, momentum=0.9)
         best_acc1, best_train_acc1 = 0, 0
@@ -261,8 +275,11 @@ def evaluate_results(analysis):
                 print(f"epoch {epoch}, test acc1 {test_acc1}, test loss {test_loss}")
                 print(f"best acc1: {best_acc1}, best train acc1: {best_train_acc1}")
         acc_mean.append(best_acc1)
-    print(acc_mean)
+        time_mean.append(time.time() - start_time)
+    print(f'{acc_mean}')
+    print(f'{time_mean}')
 
 if __name__ == "__main__":
+    set_seed(args.seed)
     analysis = optimize()
     evaluate_results(analysis)

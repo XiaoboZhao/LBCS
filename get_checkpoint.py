@@ -86,7 +86,7 @@ def test(model, test_loader):
 
 def evaluate_results():    
     # Set seed for reproducibility
-    set_seed(42)
+    # set_seed(42)
     
     trainloader, _ = get_cifar_train_loader(batch_size=128)
     
@@ -112,4 +112,5 @@ def evaluate_results():
         torch.save(model_train.state_dict(), f"checkpoint/{i}.pt")
 
 if __name__ == "__main__":
+    set_seed(args.seed)
     analysis = evaluate_results()
