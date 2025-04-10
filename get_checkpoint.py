@@ -19,8 +19,8 @@ def set_seed(seed):
 def parse_args():
     arg = argparse.ArgumentParser()
     arg.add_argument("--data", default="dataset")
-    arg.add_argument("--num_worker", default=2)
-    arg.add_argument("--seed", default=42)
+    arg.add_argument("--num_worker", type=int, default=2)
+    arg.add_argument("--seed", type=int, default=42)
     input_args = arg.parse_args()
     return input_args
 
