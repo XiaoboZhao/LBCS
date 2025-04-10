@@ -255,7 +255,7 @@ def evaluate_results(analysis):
     test_loader = get_cifar_test_loader()
     acc_final = []
     acc_best = []
-    time = []
+    time_subset = []
 
     for i in range(args.num_runs):
         start_time = time.time()
@@ -276,10 +276,10 @@ def evaluate_results(analysis):
                 print(f"best acc1: {best_acc1}, best train acc1: {best_train_acc1}")
         acc_final.append(best_acc1)
         acc_best.append(best_acc1)
-        time.append(time.time() - start_time)
+        time_subset.append(time.time() - start_time)
     print(f'acc_final: {acc_final}')
     print(f'acc_best: {acc_best}')
-    print(f'time: {time}')
+    print(f'time_subset: {time_subset}')
 
 if __name__ == "__main__":
     print(args)
