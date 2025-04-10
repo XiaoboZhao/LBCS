@@ -4,12 +4,23 @@ from datasets_utils.cifar10 import CIFAR10
 from models import ResNet18
 from torchvision.transforms import transforms
 import argparse
+import numpy as np
+import random
 
+def set_seed(seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 def parse_args():
     arg = argparse.ArgumentParser()
     arg.add_argument("--data", default="dataset")
     arg.add_argument("--num_worker", default=2)
+    arg.add_argument("--seed", default=42)
     input_args = arg.parse_args()
     return input_args
 
@@ -74,6 +85,9 @@ def test(model, test_loader):
     return acc1, loss
 
 def evaluate_results():    
+    # Set seed for reproducibility
+    set_seed(42)
+    
     trainloader, _ = get_cifar_train_loader(batch_size=128)
     
     test_loader = get_cifar_test_loader()
