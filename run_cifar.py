@@ -246,7 +246,7 @@ def evaluate_results(analysis):
         os.makedirs(args.save_dir, exist_ok=True)
         os.makedirs(os.path.join(args.save_dir, "cifar"), exist_ok=True)
 
-    torch.save(indices, os.path.join(args.save_dir, f"cifar/{args.limit}.pt"))
+    torch.save(indices, os.path.join(args.save_dir, f"cifar/{coreset_size}.pt"))
     
     full_train_loader, full_dataset = get_cifar_train_loader()
     subset = torch.utils.data.Subset(full_dataset, indices=indices)
