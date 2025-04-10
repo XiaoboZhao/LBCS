@@ -11,7 +11,8 @@ import math
 import loss_utils
 import argparse
 import os
-
+import time
+import random
 cifar_transform_train = transforms.Compose([
         transforms.RandomCrop(32, padding=4),
         transforms.RandomHorizontalFlip(),
@@ -24,12 +25,19 @@ cifar_transform_test = transforms.Compose([
         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
 ])
 
+def set_seed(seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 def load_checkpoint(epoch):
     checkpoints = []
     for i in range(epoch):
-        with open(f"checkpoint/{i}.pt", "rb") as f:
-            checkpoints.append(torch.load(f)["state_dict"])
+        checkpoints.append(torch.load(f"checkpoint/{i}.pt"))
     return checkpoints
 checkpoints = load_checkpoint(20)
 
@@ -44,6 +52,10 @@ def parse_args():
     arg.add_argument("--tolerance", type=str, default="15%")
     arg.add_argument("--data", type=str, default="dataset")
     arg.add_argument("--save_dir", type=str, default="configs")
+    arg.add_argument("--seed", type=int, default=42)
+    arg.add_argument("--num_runs", type=int, default=5)
+    arg.add_argument("--num_samples", type=int, default=500)
+    arg.add_argument("--num_checkpoints", type=int, default=20)
     input_args = arg.parse_args()
     return input_args
 
@@ -51,17 +63,17 @@ args = parse_args()
 
 def get_cifar_train_loader(batch_size=1024):
     train_dataset = CIFAR10(root=args.data, train=True, transform=cifar_transform_train, download=True)
-    loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, pin_memory=True, num_workers=8)
+    loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, pin_memory=True, num_workers=2)
     return loader, train_dataset
 
 def get_cifar_train_loader_no_transform(batch_size=128):
     train_dataset = CIFAR10(root=args.data, train=True, transform=cifar_transform_test, download=True)
-    loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=False, pin_memory=True, num_workers=8)
+    loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=False, pin_memory=True, num_workers=2)
     return loader, train_dataset
 
 def get_cifar_test_loader(batch_size=1024):
     test_dataset = CIFAR10(root=args.data, train=False, transform=cifar_transform_test, download=True)
-    loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, pin_memory=True, num_workers=8)
+    loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, pin_memory=True, num_workers=2)
     return loader
     
 def get_all_data(full_train_loader):
@@ -125,7 +137,7 @@ def train_to_converge(model, x_coreset, y_coreset, epoch_converge=100):
     top1 = AverageMeter("Acc@1", ":6.2f")
     data, target = x_coreset.cuda(), y_coreset.cuda()
     
-    idx = np.random.randint(20)
+    idx = np.random.randint(args.num_checkpoints)
     model_copy.load_state_dict(checkpoints[idx])
     
     diverged = False
@@ -149,7 +161,7 @@ epoch = 0
 def evaluate_function(config):
     global epoch
     epoch += 1
-    model = ConvNetCIFARMini(10).cuda()
+    model = ResNet18().cuda()
     
     masks = []
     for i in range(args.dataset_size):
@@ -205,7 +217,7 @@ def optimize():
 
     analysis = tune.run(
         evaluate_function,
-        num_samples=500,
+        num_samples=args.num_samples,
         time_budget_s=99999999,
         config=search_space,
         use_ray=False,
@@ -238,18 +250,21 @@ def evaluate_results(analysis):
     
     full_train_loader, full_dataset = get_cifar_train_loader()
     subset = torch.utils.data.Subset(full_dataset, indices=indices)
-    trainloader = torch.utils.data.DataLoader(subset, batch_size=128, num_workers=7, shuffle=True, pin_memory=True)
+    trainloader = torch.utils.data.DataLoader(subset, batch_size=128, num_workers=2, shuffle=True, pin_memory=True)
     
     test_loader = get_cifar_test_loader()
-    acc_mean = []
+    acc_final = []
+    acc_best = []
+    time = []
 
-    for i in range(5):
+    for i in range(args.num_runs):
+        start_time = time.time()
         model_train = ResNet18().cuda()
         optimizer = torch.optim.SGD(model_train.parameters(), lr=0.1, weight_decay=5e-4, momentum=0.9)
         best_acc1, best_train_acc1 = 0, 0
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200)
 
-        for epoch in range(0, args.dataset_size):
+        for epoch in range(0, args.train_epoch):
             train_acc1, train_loss = train(model_train, trainloader, optimizer)
             test_acc1, test_loss = test(model_train, test_loader)
             scheduler.step()
@@ -259,9 +274,15 @@ def evaluate_results(analysis):
                 print(f"epoch {epoch}, train acc1 {train_acc1}, train loss {train_loss}")
                 print(f"epoch {epoch}, test acc1 {test_acc1}, test loss {test_loss}")
                 print(f"best acc1: {best_acc1}, best train acc1: {best_train_acc1}")
-        acc_mean.append(best_acc1)
-    print(acc_mean)
+        acc_final.append(best_acc1)
+        acc_best.append(best_acc1)
+        time.append(time.time() - start_time)
+    print(f'acc_final: {acc_final}')
+    print(f'acc_best: {acc_best}')
+    print(f'time: {time}')
 
 if __name__ == "__main__":
+    print(args)
+    set_seed(args.seed)
     analysis = optimize()
     evaluate_results(analysis)

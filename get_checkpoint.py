@@ -4,12 +4,25 @@ from datasets_utils.cifar10 import CIFAR10
 from models import ResNet18
 from torchvision.transforms import transforms
 import argparse
-
+import numpy as np
+import random
+ 
+def set_seed(seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 def parse_args():
     arg = argparse.ArgumentParser()
     arg.add_argument("--data", default="dataset")
-    arg.add_argument("--num_worker", default=2)
+    arg.add_argument("--num_worker", type=int, default=2)
+    arg.add_argument("--seed", type=int, default=42)
+    arg.add_argument("--num_checkpoints", type=int, default=20)
+    arg.add_argument("--train_epoch", type=int, default=180)
     input_args = arg.parse_args()
     return input_args
 
@@ -78,14 +91,14 @@ def evaluate_results():
     
     test_loader = get_cifar_test_loader()
 
-    for i in range(20):
+    for i in range(args.num_checkpoints):
         print("Obtaining checkpoint", i)
         model_train = ResNet18().cuda()
         optimizer = torch.optim.SGD(model_train.parameters(), momentum=0.9, lr=0.1, weight_decay=5e-4)
         best_acc1, best_train_acc1 = 0, 0
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200)
 
-        for epoch in range(0, 180):
+        for epoch in range(0, args.train_epoch):
             train_acc1, train_loss = train(model_train, trainloader, optimizer)
             test_acc1, test_loss = test(model_train, test_loader)
             scheduler.step()
@@ -98,4 +111,6 @@ def evaluate_results():
         torch.save(model_train.state_dict(), f"checkpoint/{i}.pt")
 
 if __name__ == "__main__":
+    print(args)
+    set_seed(args.seed)
     analysis = evaluate_results()
