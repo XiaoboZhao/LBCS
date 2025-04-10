@@ -51,17 +51,17 @@ args = parse_args()
 
 def get_cifar_train_loader(batch_size=1024):
     train_dataset = CIFAR10(root=args.data, train=True, transform=cifar_transform_train, download=True)
-    loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, pin_memory=True, num_workers=8)
+    loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, pin_memory=True, num_workers=2)
     return loader, train_dataset
 
 def get_cifar_train_loader_no_transform(batch_size=128):
     train_dataset = CIFAR10(root=args.data, train=True, transform=cifar_transform_test, download=True)
-    loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=False, pin_memory=True, num_workers=8)
+    loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=False, pin_memory=True, num_workers=2)
     return loader, train_dataset
 
 def get_cifar_test_loader(batch_size=1024):
     test_dataset = CIFAR10(root=args.data, train=False, transform=cifar_transform_test, download=True)
-    loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, pin_memory=True, num_workers=8)
+    loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, pin_memory=True, num_workers=2)
     return loader
     
 def get_all_data(full_train_loader):
@@ -239,7 +239,7 @@ def evaluate_results(analysis):
     
     full_train_loader, full_dataset = get_cifar_train_loader()
     subset = torch.utils.data.Subset(full_dataset, indices=indices)
-    trainloader = torch.utils.data.DataLoader(subset, batch_size=128, num_workers=7, shuffle=True, pin_memory=True)
+    trainloader = torch.utils.data.DataLoader(subset, batch_size=128, num_workers=2, shuffle=True, pin_memory=True)
     
     test_loader = get_cifar_test_loader()
     acc_mean = []
