@@ -284,5 +284,7 @@ def evaluate_results(analysis):
 if __name__ == "__main__":
     print(args)
     set_seed(args.seed)
+    start_time = time.time()
     analysis = optimize()
+    print(f'time_optimize: {time.time() - start_time}')
     evaluate_results(analysis)
