@@ -112,7 +112,7 @@ def evaluate_results():
         torch.save(model_train.state_dict(), f"checkpoint/{i}.pt")
 
 if __name__ == "__main__":
-    args = parse_args()
+    # args = parse_args()
     print(args)
     set_seed(args.seed)
     analysis = evaluate_results()

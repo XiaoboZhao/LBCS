@@ -280,7 +280,7 @@ def evaluate_results(analysis):
     print(f'{time_mean}')
 
 if __name__ == "__main__":
-    args = parse_args()
+    # args = parse_args()
     print(args)
     set_seed(args.seed)
     analysis = optimize()
