@@ -39,7 +39,6 @@ def load_checkpoint(epoch):
     for i in range(epoch):
         checkpoints.append(torch.load(f"checkpoint/{i}.pt"))
     return checkpoints
-checkpoints = load_checkpoint(20)
 
 def parse_args():
     arg = argparse.ArgumentParser()
@@ -60,6 +59,7 @@ def parse_args():
     return input_args
 
 args = parse_args()
+checkpoints = load_checkpoint(args.num_checkpoints)
 
 def get_cifar_train_loader(batch_size=1024):
     train_dataset = CIFAR10(root=args.data, train=True, transform=cifar_transform_train, download=True)
