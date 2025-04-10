@@ -277,9 +277,9 @@ def evaluate_results(analysis):
         acc_final.append(best_acc1)
         acc_best.append(best_acc1)
         time_subset.append(time.time() - start_time)
-    print(f'acc_final: {acc_final}')
-    print(f'acc_best: {acc_best}')
-    print(f'time_subset: {time_subset}')
+    print(f'{args.num_runs} runs acc_final: {acc_final}')
+    print(f'{args.num_runs} runs acc_best: {acc_best}')
+    print(f'{args.num_runs} runs time_subset: {time_subset}')
 
 if __name__ == "__main__":
     print(args)
